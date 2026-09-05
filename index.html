@@ -40,12 +40,12 @@
                 height: 100vw;
                 transform: translate(-50%, -50%) rotate(90deg);
             }
-            #main-img {
-                max-height: 60vw; /* 限制高度不能超過手機短邊的 60%，把剩下的空間留給按鈕 */
+            #image-container {
+                width: 60vh !important; /* 強制以手機長邊的比例縮小 */
             }
-            
+
             #action-btn {
-                margin-top: 15px; /* 稍微縮小按鈕的上方距離 */
+                margin-top: 15px !important;
             }
         }
 
