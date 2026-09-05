@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="點開查看專屬訊息 🎁" />
+    <meta property="og:description" content="點擊進入查看神秘內容..." />
+    <title>神秘驚喜</title>
+    <style>
+        /* 基本設定：隱藏捲軸，設定溫馨的背景色 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #fff0f5; 
+            font-family: '微軟正黑體', 'Comic Sans MS', sans-serif;
+        }
+
+        /* 畫面主體容器 (處理強制橫向) */
+        #app {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        /* 強制手機直立時轉為橫向顯示 */
+        @media screen and (orientation: portrait) {
+            body {
+                transform: rotate(90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                position: absolute;
+                top: 0;
+                left: 100vw;
+            }
+        }
+
+        /* 圖片區域 */
+        #image-container {
+            position: relative;
+            width: 90%; 
+            max-width: 1000px; 
+            text-align: center;
+        }
+        
+        #main-img {
+            width: 100%;
+            max-height: 85vh; 
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: opacity 0.3s;
+        }
+
+        /* ✨ 尋找棒球專用模式 (測試中) */
+        #ball-patch {
+            position: absolute;
+            /* 1. 先把大小縮小一點，免得太大塊蓋到小新的腳 */
+            width: 15%; 
+            height: 20%;
+            
+            /* 2. 換成半透明紅色！這樣你就能看到補丁在哪，以及有沒有準確蓋到球 */
+            background-color: white;
+            
+            /* 3. 調整這兩個數字來移動紅色方塊 */
+            bottom: 12%;  /* 控制上下：數字越大，方塊越往「上」 */
+            right: 1%;   /* 控制左右：數字越大，方塊越往「左」 */
+            
+            z-index: 15;
+            
+            /* 4. 暫時改成 block，這樣你不用點按鈕就能一直看到它，方便調整 */
+            display: none; 
+        }
+
+        /* 互動按鈕設計 */
+        #action-btn {
+            margin-top: 25px;
+            padding: 12px 35px;
+            font-size: 22px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            background-color: #ff7b9c;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255,123,156,0.4);
+            z-index: 10;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        #action-btn:active {
+            transform: scale(0.95);
+        }
+        #action-btn:hover {
+            background-color: #ff5e85;
+        }
+
+        /* ⚾ 飛出去的棒球特效 */
+        #baseball {
+            position: absolute;
+            font-size: 40px;
+            display: none; 
+            bottom: 18%; 
+            right: 20%;
+            z-index: 20;
+            opacity: 1;
+        }
+
+        /* 📝 留言板樣式 */
+        #message-board {
+            display: none;
+            position: absolute;
+            top: 5%;     
+            right: 5%;   
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 40px;
+            border-radius: 20px;
+            border: 4px dashed #ff7b9c;
+            text-align: center;
+            z-index: 30; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 80%;
+            max-width: 400px;
+            animation: popInRight 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        
+        #message-board h1 {
+            color: #ff477e;
+            margin-top: 0;
+        }
+        #message-board p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        @keyframes popInRight {
+            0% { opacity: 0; transform: scale(0.5); transform-origin: top right; }
+            100% { opacity: 1; transform: scale(1); transform-origin: top right; }
+        }
+
+        /* 右下角署名 KUN */
+        #signature {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 26px;
+            color: #ff477e;
+            font-weight: bold;
+            font-family: 'Comic Sans MS', sans-serif;
+            z-index: 10;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 愛心特效樣式 */
+        .heart {
+            position: absolute;
+            font-size: 28px;
+            color: #ff477e;
+            pointer-events: none;
+            z-index: 50;
+            animation: floatUp 1.5s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -120px) scale(1.5); }
+        }
+        
+        @keyframes floatRight {
+            0% { opacity: 1; transform: translate(-50%, -50%) rotate(90deg) scale(1); }
+            100% { opacity: 0; transform: translate(120px, -50%) rotate(90deg) scale(1.5); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 圖片與棒球容器 -->
+        <div id="image-container">
+            <img id="main-img" src="蠟筆小新打棒球.jpg" alt="蠟筆小新">
+            <!-- ✨ 這個補丁用來遮住原圖的球 -->
+            <div id="ball-patch"></div>
+            <div id="baseball">⚾</div>
+        </div>
+        
+        <!-- 操作按鈕 -->
+        <button id="action-btn">準備擊球</button>
+
+        <!-- 留言板 (一開始隱藏) -->
+        <div id="message-board">
+            <h1>🎂 生日快樂！ 🎂</h1>
+            <p>柏凱生日快樂！</p>
+            <p>20歲的開始，祝你每天都過得很開心</p>
+            <p>希望你可以遇到漂亮的另一半</p>
+            <p>祝你越練越壯，身體健康</p>
+            <p>改天再一次吃飯聊天!</p>
+        </div>
+
+        <!-- 署名 -->
+        <div id="signature">KUN</div>
+    </div>
+
+    <!-- 音樂播放器 -->
+    <audio id="bgm" src="happy_birthday.mp3"></audio>
+
+    <script>
+        const btn = document.getElementById('action-btn');
+        const img = document.getElementById('main-img');
+        const ball = document.getElementById('baseball');
+        const patch = document.getElementById('ball-patch');
+        const msgBoard = document.getElementById('message-board');
+        const bgm = document.getElementById('bgm');
+        let clickCount = 0;
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            clickCount++;
+            
+            if (clickCount === 1) {
+                img.src = '蠟筆小新打棒球1.jpg';
+                btn.textContent = '揮棒！';
+            } 
+            else if (clickCount === 2) {
+                img.src = '蠟筆小新打棒球2.jpg';
+                btn.textContent = '球飛吧！';
+            } 
+            else if (clickCount === 3) {
+                // 第三次點擊：球飛出去
+                ball.style.display = 'block';
+                
+                // ✨ 顯示白色補丁，把原圖上的球變不見！
+                patch.style.display = 'block';
+                
+                // 鎖定球相對於圖片容器的絕對起始座標
+                const startTop = ball.offsetTop;
+                const startLeft = ball.offsetLeft;
+                
+                ball.style.bottom = 'auto';
+                ball.style.right = 'auto';
+                ball.style.top = startTop + 'px';
+                ball.style.left = startLeft + 'px';
+                
+                void ball.offsetWidth;
+                
+                ball.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+                
+                // 讓球飛出畫面
+                ball.style.top = '-15vh'; 
+                ball.style.left = 'calc(100% + 10vw)'; 
+                
+                // 隱藏按鈕
+                btn.style.display = 'none';
+                
+                // 延遲 0.6 秒後執行：顯示留言、播放音樂、隱藏飛行的球
+                setTimeout(() => {
+                    msgBoard.style.display = 'block';
+                    // ✨ 讓卡在右上角的飛行球變透明隱藏
+                    ball.style.opacity = '0'; 
+                    bgm.play().catch(err => console.log('音樂自動播放可能被阻擋', err));
+                }, 600);
+            }
+        });
+
+        // 產生愛心的函數
+        function createHeart(x, y) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerText = '❤️';
+            
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            
+            if (window.matchMedia("(orientation: portrait)").matches) {
+                heart.style.animation = 'floatRight 1.5s ease-out forwards';
+            }
+            
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1500);
+        }
+
+        // 監聽滑鼠/手指點擊畫面任意處
+        document.addEventListener('click', (e) => {
+            if (e.target.id !== 'action-btn' && !msgBoard.contains(e.target)) {
+                createHeart(e.clientX, e.clientY);
+            }
+        });
+
+        // 監聽鍵盤空白鍵
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                createHeart(x, y);
+            }
+        });
+    </script>
+</body>
+</html>
