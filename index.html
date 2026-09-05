@@ -30,16 +30,16 @@
             transition: all 0.3s;
         }
 
-        /* 強制手機直立時轉為橫向顯示 */
+       /* --- 強制手機直立時轉為橫向顯示的改良魔法 --- */
         @media screen and (orientation: portrait) {
-            body {
-                transform: rotate(90deg);
-                transform-origin: left top;
+            #app {
+                position: absolute;
+                top: 50%;
+                left: 50%;
                 width: 100vh;
                 height: 100vw;
-                position: absolute;
-                top: 0;
-                left: 100vw;
+                /* 先往左上回推自身一半的距離達到完美置中，然後原地旋轉 90 度 */
+                transform: translate(-50%, -50%) rotate(90deg);
             }
         }
 
